@@ -33,17 +33,17 @@ AK3_DIR="$BASE_DIR/AnyKernel3"
 [[ ! -d "$AK3_DIR" ]] && echo "--- ! Failed to find AnyKernel3 at $AK3_DIR ! ---" && exit 1
 
 # Telegram API setup
-TELEGRAM_CONFIG="$BASE_DIR/telegram_api"
-if [[ ! -f "$TELEGRAM_CONFIG" ]]; then
-    echo "--- ! Failed to find Telegram API config at $TELEGRAM_CONFIG ! ---"
-    exit 1
-else
-    source "$TELEGRAM_CONFIG"
-    if [[ -z "$BOT_TOKEN" || -z "$GROUP_ID" || -z "$CHANNEL_ID" || -z "$PRIVATE_ID" ]]; then
-        echo "--- ! Failed to find Telegram required variables (BOT_TOKEN, GROUP_ID, CHANNEL_ID, PRIVATE_ID) ! ---"
-        exit 1
-    fi
-fi
+#TELEGRAM_CONFIG="$BASE_DIR/telegram_api"
+#if [[ ! -f "$TELEGRAM_CONFIG" ]]; then
+#    echo "--- ! Failed to find Telegram API config at $TELEGRAM_CONFIG ! ---"
+#    exit 1
+#else
+#    source "$TELEGRAM_CONFIG"
+#    if [[ -z "$BOT_TOKEN" || -z "$GROUP_ID" || -z "$CHANNEL_ID" || -z "$PRIVATE_ID" ]]; then
+#        echo "--- ! Failed to find Telegram required variables (BOT_TOKEN, GROUP_ID, CHANNEL_ID, PRIVATE_ID) ! ---"
+#        exit 1
+#    fi
+#fi
 
 MSGTARGET="private"
 
@@ -61,16 +61,11 @@ case "$MSGTARGET" in
 esac
 
 send_msg() {
-    curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-        -d chat_id="$ID" \
-        -d text="$1" \
-        -d parse_mode=html >/dev/null
+    :
 }
 
 send_file() {
-    curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
-        -F chat_id="$ID" \
-        -F document=@"$1" >/dev/null
+    :
 }
 
 send_changelog() {
@@ -134,7 +129,7 @@ declare -A DEVICE_NAME_MAP=(
 
 # Toolchain selection
 case "$*" in
-    *aosp*) export PATH="$BASE_DIR/toolchains/aosp-clang/bin:$PATH"; TC="AOSP-Clang" ;;
+    *aosp*) export PATH="/usr/bin:$PATH"; TC="AOSP-Clang" ;;
     *neutron*) export PATH="$BASE_DIR/toolchains/neutron-clang/bin:$PATH"; TC="Neutron-Clang" ;;
     *llvm*) export PATH="$BASE_DIR/toolchains/llvm-clang/bin:$PATH"; TC="LLVM-Clang" ;;
     *lilium*) export PATH="$BASE_DIR/toolchains/lilium-clang/bin:$PATH"; TC="Lilium-Clang" ;;
@@ -167,14 +162,14 @@ done
 
 compilebuild() {
     if [[ $TC == *Clang* ]]; then
-        make -j$(nproc) O=out \
+        make -j4 O=out \
             CC="ccache clang" \
             CROSS_COMPILE=aarch64-linux-gnu- \
             CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
             LLVM=1 LLVM_IAS=1 \
             2>&1 | tee -a "$LOG_FILE"
     else
-        make -j$(nproc) O=out \
+        make -j4 O=out \
             CC="ccache aarch64-linux-gcc" \
             CROSS_COMPILE=aarch64-linux- \
             CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
@@ -191,7 +186,7 @@ zipbuild() {
     DEVICE_NAME="${DEVICE_NAME_MAP[$DEVICE]:-$DEVICE}"
 
     if [[ "$BRANCH" == *bpf* ]]; then
-        ZIP_NAME="RE404-${DEVICE_NAME}-BPF-$(date "+%y%m%d-%H%M").zip"
+        ZIP_NAME="$Zhu-{DEVICE_NAME}-BPF-$(date "+%y%m%d-%H%M").zip"
     else
         ZIP_NAME="RE404-${DEVICE_NAME}-$(date "+%y%m%d-%H%M").zip"
     fi

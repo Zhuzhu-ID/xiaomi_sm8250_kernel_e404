@@ -1251,11 +1251,11 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 		(!strncmp(current->comm, "bpfloader", 9) ||
 		!strncmp(current->comm, "netbpfload", 10) ||
 		!strncmp(current->comm, "netd", 4))) {
-		strcpy(tmp.release, "5.10.404");
+		strcpy(tmp.release, "4.19.CQX");
 		pr_info("fake uname: %s/%d release=%s\n",
 			 current->comm, current->pid, tmp.release);
 	} else if (cur_uid >= 1000) {
-        strlcpy(tmp.release, "5.10.404R", sizeof(tmp.release));
+        strlcpy(tmp.release, "5.10.CQX", sizeof(tmp.release));
     }
 	up_read(&uts_sem);
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
